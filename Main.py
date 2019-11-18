@@ -3,6 +3,9 @@ from NowInTheaters import NowInTheaters
 
 
 def main():
+    """
+    A simple test of the web scraping from two different sections of IMDB webpage.
+    """
     top_rated_scraper = TopRated()
     movies = top_rated_scraper.get_movies()
     top_rated_scraper.write_to_csv(movies)

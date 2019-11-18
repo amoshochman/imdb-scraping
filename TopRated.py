@@ -1,16 +1,23 @@
-import requests
-from bs4 import BeautifulSoup
 from Movie import Movie
 from MoviesScraper import MoviesScraper
 
-#TAG_BEST_250 = {'tag': 'td', 'tag_attr': 'posterColumn'}
-#Should we use it?
 
 class TopRated(MoviesScraper):
+    """
+    A class that inherits the generic MoviesScraper for scraping the information of the 250 top rated movies
+    in IMDB web page.
+    """
+
     def __init__(self):
         MoviesScraper.__init__(self, 'https://www.imdb.com/chart/top', "top_250.csv")
 
     def get_movies(self):
+        """
+        Return a list of Movie objects with basic information about them. One object per each movie in
+        "url" member.
+        :return: a list of Movie object.
+        """
+        # todo: unify the common behavior across the different versions of get_movies functions (in the child classes).
         soup = MoviesScraper.get_soup(self)
         movies_list = []
         movies_tags = [elem for elem in soup.find_all('a') if elem.has_attr("title") and "dir" in elem.attrs["title"]]
