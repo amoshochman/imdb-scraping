@@ -1,9 +1,10 @@
 import csv
+
 import requests
 from bs4 import BeautifulSoup
 
 
-class MoviesScraper:
+class Scraper:
     """
     A generic class for web scraping of movies information.
     """
@@ -27,13 +28,15 @@ class MoviesScraper:
         page = requests.get(self.url)
         return BeautifulSoup(page.content, 'html.parser')
 
-    def write_to_csv(self, movies):
+    def write_to_csv(self, header, entities):
         """
-        Takes a list of Movie objects and writes them to a csv file with the name of the file_name member.
-        :param movies: a list of Movie objects.
+        Takes a list of IMDB objects and writes them to a csv file with the name of the file_name member,
+        using the provided header.
+        :param header: the header to use in the CSV file.
+        :param entities: a list of IMDB objects.
         """
         with open(self.file_name, 'w') as csvFile:
             writer = csv.writer(csvFile)
-            writer.writerow(["Name", "Year", "Director"])
-            writer.writerows([movie.to_list() for movie in movies])
+            writer.writerow(header)
+            writer.writerows([entity.to_list() for entity in entities])
         csvFile.close()
