@@ -6,12 +6,12 @@ from bs4 import BeautifulSoup
 
 class Scraper:
     """
-    A generic class for web scraping of movies information.
+    A generic class for web scraping of IMDB information.
     """
 
     def __init__(self, url, file_name):
         """
-        A constructor of a MoviesScraper object.
+        A constructor of a Scraper object.
         :param url: the url address to scrape from.
         :param file_name: the file of the name where the output should be redirected to.
         """
@@ -21,7 +21,7 @@ class Scraper:
     def get_soup(self):
         """
         Uses the object member url to read/scrape the associated web page and returns a BeautifulSoup object
-        that contains all the movies that are listed in the given url.
+        that contains all the content in the given url.
         The tags that are used as markers in the html script depend on the web page.
         :return: A BeautifulSoup object.
         """

@@ -7,7 +7,7 @@ TAG_DICT = {'tag': 'td', 'tag_attr': 'overview-top'}
 
 class MoviesScraper(Scraper):
     """
-    A generic class for web scraping of movies information.
+    A class for web scraping of movies information.
     """
 
     def __init__(self, url, file_name):
@@ -67,11 +67,6 @@ class TopRated(MoviesScraper):
         MoviesScraper.__init__(self, 'https://www.imdb.com/chart/top', "top_250.csv")
 
     def get_movies(self):
-        """
-        Return a list of Movie objects with basic information about them. One object per each movie in
-        "url" member.
-        :return: a list of Movie object.
-        """
         soup = MoviesScraper.get_soup(self)
         movies_list = []
         movies_tags = [elem for elem in soup.find_all('a') if elem.has_attr("title") and "dir" in elem.attrs["title"]]

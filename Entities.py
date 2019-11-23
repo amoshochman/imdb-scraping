@@ -1,4 +1,7 @@
 class Entity:
+    """
+    A class representing an entity from IMDB: movie, celeb, etc.
+    """
     def to_list(self):
         members = self.get_header()
         members_values = []
