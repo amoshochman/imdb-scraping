@@ -1,6 +1,7 @@
 import re
 from Entities import Movie
 from Scraper import Scraper
+from config import urls, csv_files
 
 TAG_DICT = {'tag': 'td', 'tag_attr': 'overview-top'}
 
@@ -16,7 +17,7 @@ class MoviesScraper(Scraper):
         :param url: the url address to scrape from.
         :param file_name: the file of the name where the output should be redirected to.
         """
-        Scraper.__init__(self, url, file_name)
+        Scraper.__init__(self, url, file_name, "movies")
 
     def get_movies(self):
         """
@@ -32,14 +33,14 @@ class MoviesScraper(Scraper):
 # todo: maybe we don't actually need "MoviesScraper" and "CelebsScraper" and it's enough to inherit the
 # todo: specific classes directly from "Scraper? At this point the level of those two first mentioned it's not in use.
 
-class NowInTheaters(MoviesScraper):
+class NowInTheatersScraper(MoviesScraper):
     """
     A class that inherits the generic MoviesScraper for scraping the information of the movies currently in theaters
     according to IMDB webpage.
     """
 
     def __init__(self):
-        MoviesScraper.__init__(self, 'https://www.imdb.com/movies-in-theaters/?ref_=nv_mv_inth', "now_in_theaters.csv")
+        MoviesScraper.__init__(self, urls["now_in_theaters"], csv_files["now_in_theaters"])
 
     def get_movies(self):
         soup = MoviesScraper.get_soup(self)
@@ -57,14 +58,14 @@ class NowInTheaters(MoviesScraper):
         return movies_list
 
 
-class TopRated(MoviesScraper):
+class TopRatedScraper(MoviesScraper):
     """
     A class that inherits the generic MoviesScraper for scraping the information of the 250 top rated movies
     in IMDB web page.
     """
 
     def __init__(self):
-        MoviesScraper.__init__(self, 'https://www.imdb.com/chart/top', "top_250.csv")
+        MoviesScraper.__init__(self, urls["top_250"], csv_files["top_250"])
 
     def get_movies(self):
         soup = MoviesScraper.get_soup(self)
@@ -78,5 +79,5 @@ class TopRated(MoviesScraper):
             id = href[href.find("/", 2) + 1:-1]
             director = director_and_actors[:director_and_actors.find("(dir.)") - 1]
             year = years_tags[i].get_text()[1:-1]
-            movies_list.append(Movie(name, year, id, director))
+            movies_list.append(Movie(name, year=year, imdb_id=id))
         return movies_list

@@ -2,6 +2,8 @@ import csv
 
 import requests
 from bs4 import BeautifulSoup
+from DBUtils import DBConnector, DBCreator
+from config import sql, tables
 
 
 class Scraper:
@@ -9,7 +11,7 @@ class Scraper:
     A generic class for web scraping of IMDB information.
     """
 
-    def __init__(self, url, file_name):
+    def __init__(self, url, file_name, table):
         """
         A constructor of a Scraper object.
         :param url: the url address to scrape from.
@@ -17,6 +19,9 @@ class Scraper:
         """
         self.url = url
         self.file_name = file_name
+        self.table = table
+        DBCreator.start_db(sql["host"], sql["user"], sql["passwd"], sql["db"], tables)
+        self.my_connector = DBConnector(sql["host"], sql["user"], sql["passwd"], sql["db"])
 
     def get_soup(self):
         """
@@ -40,3 +45,7 @@ class Scraper:
             writer.writerow(header)
             writer.writerows([entity.to_list() for entity in entities])
         csvFile.close()
+
+    def write_to_db(self, header, entities):
+        self.my_connector.insert(self.table, ', '.join(header), [entity.to_list() for entity in entities])
+
