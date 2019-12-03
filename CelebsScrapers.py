@@ -16,7 +16,6 @@ class CelebsScraper(Scraper):
         Scraper.__init__(self, url, file_name, "celebs")
 
 
-
 class BirthdayScraper(CelebsScraper):
     """
     A class that inherits the generic MoviesScraper for scraping the information of the movies currently in theaters
@@ -45,9 +44,5 @@ class BirthdayScraper(CelebsScraper):
             href_tag = a_tag.attrs["href"]
             id = href_tag[href_tag.find("/", 2) + 1:]
 
-            p_tag = celeb.find('p')
-            p_tag_text = p_tag.get_text()
-            #role = p_tag_text[:p_tag_text.find("|")].strip()
-
-            celebs_list.append(Celeb(id, name))
+            celebs_list.append(Celeb(name,id))
         return celebs_list

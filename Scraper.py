@@ -47,5 +47,9 @@ class Scraper:
         csvFile.close()
 
     def write_to_db(self, header, entities):
+        """
+        Takes a list of IMDB objects and writes them to the DB table stored in the "table" member variable.
+        :param header: a list with the fields to use.
+        :param entities: a list of entities to insert.
+        """
         self.my_connector.insert(self.table, ', '.join(header), [entity.to_list() for entity in entities])
-
