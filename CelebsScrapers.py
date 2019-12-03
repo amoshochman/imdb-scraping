@@ -1,8 +1,23 @@
+from Scraper import Scraper
 from Entities import Celeb
-from CelebsScraper import CelebsScraper
 
 
-class BirthdayCelebs(CelebsScraper):
+class CelebsScraper(Scraper):
+    """
+    A generic class for web scraping of celebs information.
+    """
+
+    def __init__(self, url, file_name):
+        """
+        A constructor of a MoviesScraper object.
+        :param url: the url address to scrape from.
+        :param file_name: the file of the name where the output should be redirected to.
+        """
+        Scraper.__init__(self, url, file_name, "celebs")
+
+
+
+class BirthdayScraper(CelebsScraper):
     """
     A class that inherits the generic MoviesScraper for scraping the information of the movies currently in theaters
     according to IMDB webpage.
@@ -32,7 +47,7 @@ class BirthdayCelebs(CelebsScraper):
 
             p_tag = celeb.find('p')
             p_tag_text = p_tag.get_text()
-            role = p_tag_text[:p_tag_text.find("|")].strip()
+            #role = p_tag_text[:p_tag_text.find("|")].strip()
 
-            celebs_list.append(Celeb(id, name, role))
+            celebs_list.append(Celeb(id, name))
         return celebs_list
