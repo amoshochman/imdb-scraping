@@ -3,7 +3,7 @@ import mysql.connector
 
 class DBConnector():
     """
-    A class representing a ...
+    A class to run scripts on a specific DB.
     """
 
     def __init__(self, host, user, passwd, database):
@@ -16,14 +16,29 @@ class DBConnector():
         self.mycursor = self.mydb.cursor()
 
     def insert(self, table, columns, records):
+        """
+        Inserts records "records" into columns "columns" from table "table".
+        :param table: the table to insert to.
+        :param columns: the columns to insert to.
+        :param records: the values to use.
+        """
         values_container = ','.join(["%s" for i in range(len(records[0]))])
         sql = "INSERT IGNORE INTO " + table + "(" + columns + ") VALUES (" + values_container + ")"
         self.mycursor.executemany(sql, records)
         self.mydb.commit()
         print(self.mycursor.rowcount, "record/s inserted in table", table)
 
-    def select(self, columns, table, where):
-        sql = "SELECT " + columns + "FROM" + table + "WHERE" + where
+    def select(self, columns, table, where=None):
+        """
+        Select from table "table" the records that fulfill the conditions in "where" parameter, if present,
+        and retrieves the values in "columns" parameter.
+        :param columns: the columns to retrieve data from.
+        :param table: the table to use.
+        :param where: if present, the conditions that need to be fulfilled by the query.
+        """
+        sql = "SELECT " + columns + " FROM " + table
+        if where:
+            sql += " where " + where
         self.mycursor.execute(sql)
         return self.mycursor.fetchall()
 
@@ -32,11 +47,27 @@ class DBCreator():
 
     @staticmethod
     def start_db(host, user, passwd, db, tables_to_be_created):
-        DBCreator.create_db(host, user, passwd, db)
-        DBCreator.create_tables(host, user, passwd, db, tables_to_be_created)
+        """
+        Creates the specified DB if it doesn't exist and creates the tables from the specified ones that
+        don't exist.
+        :param host: the host.
+        :param user: the user.
+        :param passwd: the password.
+        :param db: the database.
+        :param tables_to_be_created: the tables that need to be created.
+        """
+        DBCreator.__create_db(host, user, passwd, db)
+        DBCreator.__create_tables(host, user, passwd, db, tables_to_be_created)
 
     @staticmethod
-    def create_db(host, user, passwd, db):
+    def __create_db(host, user, passwd, db):
+        """
+        Creates the specified DB if it doesn't exist.
+        :param host: the host.
+        :param user: the user.
+        :param passwd: the password.
+        :param db: the database.
+        """
         mydb = mysql.connector.connect(
             host=host,
             user=user,
@@ -57,7 +88,15 @@ class DBCreator():
             mycursor.execute("CREATE DATABASE " + db)
 
     @staticmethod
-    def create_tables(host, user, passwd, db, tables_to_be_created):
+    def __create_tables(host, user, passwd, db, tables_to_be_created):
+        """
+        From the specified tables creates the ones that don't exist in the DB.
+        :param host: the host.
+        :param user: the user.
+        :param passwd: the password.
+        :param db: the database.
+        :param tables_to_be_created: the tables that need to be created.
+        """
         mydb = mysql.connector.connect(
             host=host,
             user=user,

@@ -16,9 +16,15 @@ tables = {"movies": "CREATE TABLE movies "
                     "imdb_id VARCHAR(255) UNIQUE, "
                     "name VARCHAR(255))",
 
+          "roles": "CREATE TABLE roles "
+                   "(id INT AUTO_INCREMENT PRIMARY KEY, "
+                   "name VARCHAR(255))",
+
           "celebs_to_movies": "CREATE TABLE celebs_to_movies "
                               "(id INT AUTO_INCREMENT PRIMARY KEY, "
                               "celeb_id INT,"
                               "movie_id INT,"
+                              "role_id INT,"
                               "FOREIGN KEY(celeb_id) REFERENCES celebs(id),"
-                              "FOREIGN KEY(movie_id) REFERENCES movies(id))"}
+                              "FOREIGN KEY(movie_id) REFERENCES movies(id),"
+                              "FOREIGN KEY(role_id) REFERENCES roles(id))"}
