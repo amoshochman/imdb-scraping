@@ -45,6 +45,7 @@ class Scraper:
             writer.writerow(header)
             writer.writerows([entity.to_list() for entity in entities])
         csvFile.close()
+        print(str(len(entities)), "record/s printed on file", self.file_name)
 
     def write_to_db(self, header, entities):
         """
@@ -52,4 +53,6 @@ class Scraper:
         :param header: a list with the fields to use.
         :param entities: a list of entities to insert.
         """
-        self.my_connector.insert(self.table, ', '.join(header), [entity.to_list() for entity in entities])
+        rows_inserted = self.my_connector.insert(self.table, ', '.join(header),
+                                                 [entity.to_list() for entity in entities])
+        print(rows_inserted, "record/s inserted into table", self.table)

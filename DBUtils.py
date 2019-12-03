@@ -21,12 +21,14 @@ class DBConnector():
         :param table: the table to insert to.
         :param columns: the columns to insert to.
         :param records: the values to use.
+        :return: the numbers of records actually inserted
+        (pay attention: it can differ from len("records"), as part of them could already exist).
         """
         values_container = ','.join(["%s" for i in range(len(records[0]))])
         sql = "INSERT IGNORE INTO " + table + "(" + columns + ") VALUES (" + values_container + ")"
         self.mycursor.executemany(sql, records)
         self.mydb.commit()
-        print(self.mycursor.rowcount, "record/s inserted in table", table)
+        return self.mycursor.rowcount
 
     def select(self, columns, table, where=None):
         """
