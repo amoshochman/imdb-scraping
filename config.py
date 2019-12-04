@@ -28,3 +28,5 @@ tables = {"movies": "CREATE TABLE movies "
                               "FOREIGN KEY(celeb_id) REFERENCES celebs(id),"
                               "FOREIGN KEY(movie_id) REFERENCES movies(id),"
                               "FOREIGN KEY(role_id) REFERENCES roles(id))"}
+
+DATE_FORMAT = "%d/%m"

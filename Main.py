@@ -1,24 +1,67 @@
 from CelebsScrapers import BirthdayScraper
-from datetime import datetime
-
 from MoviesScrapers import TopRatedScraper, NowInTheatersScraper
+from config import DATE_FORMAT
+
 from datetime import datetime
 import sys
 import argparse
+
+
+def get_human_format(date):
+    return date.replace('%', '').replace('d', 'dd').replace('m', 'mm').replace('y', 'yy')
+
 
 def get_valid_date(string):
     try:
         return datetime.strptime(string, "%d/%m")
     except ValueError:
-        msg = "Not a valid date: '{0}'.".format(string) + " Please enter it in format 'DD/MM'."
+        msg = "Not a valid date: '{0}'.".format(string) + " Please enter it in format " + get_human_format(
+            DATE_FORMAT)
         raise argparse.ArgumentTypeError(msg)
+
+
+def write_records(scraper, db, csv):
+    entities = scraper.get_entities()
+    header = entities[0].get_header()
+    if db:
+        scraper.write_to_db(header, entities)
+    if csv:
+        scraper.write_to_csv(header, entities)
+
+
+def get_scrapers(args):
+    scrapers = []
+    if args.top:
+        scrapers.append(TopRatedScraper())
+    if args.now:
+        scrapers.append((NowInTheatersScraper()))
+    if args.celebs:
+        if args.date:
+            celeb_date = args.date[0]
+        else:
+            celeb_date = datetime.today()
+        scrapers.append(BirthdayScraper(str(celeb_date.month), str(celeb_date.day)))
+    return scrapers
+
+
+def get_args(parser):
+    args = parser.parse_args()
+    if not (args.csv or args.db) or not (args.top or args.celebs or args.now):
+        parser.print_usage()
+        print()
+        print("At least one option needs to be chosen from both sets:")
+        print("{-db, -csv}, {-top, -now, celebs}")
+        print("If '-celebs' not present, 'date' will be ignored if present.")
+        sys.exit(1)
+    return args
+
 
 def main():
     """
     Some tests for IMDB Web scraping.
     """
-    #todo: add argument for the file names.
-    #todo: add selects, etc.
+    # todo: add argument for the file names.
+    # todo: add selects, etc.
     parser = argparse.ArgumentParser(description="---=== An imdb web scraper ===---")
 
     parser.add_argument("-top", action='store_true',
@@ -39,48 +82,14 @@ def main():
 
     parser.add_argument("-d", "--date", type=get_valid_date, nargs=1, default=None,
                         help="Perform web scarping to the celebrities born on this date.\n \
-                                 Enter date in the format: 'DD/MM'")
+                                 Enter date in format: " + get_human_format(DATE_FORMAT))
 
-    args = parser.parse_args()
+    args = get_args(parser)
 
-    if not (args.csv or args.db) or not (args.top or args.celebs or args.now):
-        parser.print_usage()
-        print()
-        print("At least one option needs to be chosen from both sets:")
-        print("{-db, -csv}, {-top, -now, celebs}")
-        print("If '-celebs' not present, a passed date will be ignored.")
-        sys.exit(1)
+    scrapers = get_scrapers(args)
 
-    if args.top:
-        top_rated_scraper = TopRatedScraper()
-        movies = top_rated_scraper.get_movies()
-        header = movies[0].get_header()
-        if args.db:
-            top_rated_scraper.write_to_db(header, movies)
-        if args.csv:
-            top_rated_scraper.write_to_csv(header, movies)
-
-    if args.now:
-        now_in_theaters_scraper = NowInTheatersScraper()
-        movies = now_in_theaters_scraper.get_movies()
-        header = movies[0].get_header()
-        if args.db:
-            now_in_theaters_scraper.write_to_db(header, movies)
-        if args.csv:
-            now_in_theaters_scraper.write_to_csv(header, movies)
-
-    if args.celebs:
-        if args.date:
-            celeb_date = args.date[0]
-        else:
-            celeb_date = datetime.today()
-        birthday_celebs_scraper = BirthdayScraper(str(celeb_date.month), str(celeb_date.day))
-        celebs = birthday_celebs_scraper.get_celebs()
-        header = celebs[0].get_header()
-        if args.db:
-            birthday_celebs_scraper.write_to_db(header, celebs)
-        if args.csv:
-            birthday_celebs_scraper.write_to_csv(header, celebs)
+    for scraper in scrapers:
+        write_records(scraper, args.db, args.csv)
 
 
 if __name__ == "__main__":

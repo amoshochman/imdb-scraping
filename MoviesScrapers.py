@@ -1,7 +1,8 @@
-import re
 from Entities import Movie
 from Scraper import Scraper
 from config import urls, csv_files
+
+import re
 
 TAG_DICT = {'tag': 'td', 'tag_attr': 'overview-top'}
 
@@ -19,14 +20,6 @@ class MoviesScraper(Scraper):
         """
         Scraper.__init__(self, url, file_name, "movies")
 
-    def get_movies(self):
-        """
-        Return a list of Movie objects with basic information about them. One object per each movie in
-        "url" member.
-        :return: a list of Movie objects.
-        """
-        raise NotImplementedError("Must override get_movies")
-
 
 # todo: unify the common behavior across the different versions of get_movies functions (in the child classes)?
 # todo: maybe use constants for the hard_coded URLs?
@@ -42,7 +35,7 @@ class NowInTheatersScraper(MoviesScraper):
     def __init__(self):
         MoviesScraper.__init__(self, urls["now_in_theaters"], csv_files["now_in_theaters"])
 
-    def get_movies(self):
+    def get_entities(self):
         soup = MoviesScraper.get_soup(self)
         movies_list = []
         movies_tags = soup.find_all(TAG_DICT['tag'], attrs={'class': TAG_DICT['tag_attr']})
@@ -67,7 +60,7 @@ class TopRatedScraper(MoviesScraper):
     def __init__(self):
         MoviesScraper.__init__(self, urls["top_250"], csv_files["top_250"])
 
-    def get_movies(self):
+    def get_entities(self):
         soup = MoviesScraper.get_soup(self)
         movies_list = []
         movies_tags = [elem for elem in soup.find_all('a') if elem.has_attr("title") and "dir" in elem.attrs["title"]]

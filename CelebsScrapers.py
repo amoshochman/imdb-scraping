@@ -27,7 +27,7 @@ class BirthdayScraper(CelebsScraper):
                                'https://www.imdb.com/search/name/?birth_monthday=' + month + '-' + day + '&ref_=nv_cel_brn',
                                "celebs.csv")
 
-    def get_celebs(self):
+    def get_entities(self):
         """
         Return a list of Celeb objects with basic information about them. One object per each celeb in
         "url" member.

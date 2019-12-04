@@ -1,6 +1,5 @@
-import csv
-
 import requests
+import csv
 from bs4 import BeautifulSoup
 from DBUtils import DBConnector, DBCreator
 from config import sql, tables
@@ -45,7 +44,7 @@ class Scraper:
             writer.writerow(header)
             writer.writerows([entity.to_list() for entity in entities])
         csvFile.close()
-        print(str(len(entities)), "record/s printed on file", self.file_name)
+        print(str(len(entities)), "record/s printed to file", self.file_name)
 
     def write_to_db(self, header, entities):
         """
@@ -56,3 +55,6 @@ class Scraper:
         rows_inserted = self.my_connector.insert(self.table, ', '.join(header),
                                                  [entity.to_list() for entity in entities])
         print(rows_inserted, "record/s inserted into table", self.table)
+
+    def get_entities(self):
+        raise NotImplementedError("Must override get_entities")
