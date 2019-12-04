@@ -6,12 +6,19 @@ from datetime import datetime
 import sys
 import argparse
 
+def get_valid_date(string):
+    try:
+        return datetime.strptime(string, "%d/%m")
+    except ValueError:
+        msg = "Not a valid date: '{0}'.".format(string) + " Please enter it in format 'DD/MM'."
+        raise argparse.ArgumentTypeError(msg)
 
 def main():
     """
     Some tests for IMDB Web scraping.
     """
-
+    #todo: add argument for the file names.
+    #todo: add selects, etc.
     parser = argparse.ArgumentParser(description="---=== An imdb web scraper ===---")
 
     parser.add_argument("-top", action='store_true',
@@ -30,10 +37,9 @@ def main():
     parser.add_argument("-csv", action='store_true',
                         help="Inserts the records in a CSV file.")
 
-    parser.add_argument("-d", "--date", type=str, nargs=1,
-                        metavar="date", default=None,
+    parser.add_argument("-d", "--date", type=get_valid_date, nargs=1, default=None,
                         help="Perform web scarping to the celebrities born on this date.\n \
-                                 Enter date in the format: 'DD/MM/YYY'")
+                                 Enter date in the format: 'DD/MM'")
 
     args = parser.parse_args()
 
@@ -41,10 +47,11 @@ def main():
         parser.print_usage()
         print()
         print("At least one option needs to be chosen from both sets:")
-        print("{-db, -csv}, {-t, -n-, -c}")
+        print("{-db, -csv}, {-top, -now, celebs}")
+        print("If '-celebs' not present, a passed date will be ignored.")
         sys.exit(1)
 
-    if args.top:  # True or False flag
+    if args.top:
         top_rated_scraper = TopRatedScraper()
         movies = top_rated_scraper.get_movies()
         header = movies[0].get_header()
@@ -53,7 +60,7 @@ def main():
         if args.csv:
             top_rated_scraper.write_to_csv(header, movies)
 
-    if args.now:  # True or False flag
+    if args.now:
         now_in_theaters_scraper = NowInTheatersScraper()
         movies = now_in_theaters_scraper.get_movies()
         header = movies[0].get_header()
@@ -62,9 +69,9 @@ def main():
         if args.csv:
             now_in_theaters_scraper.write_to_csv(header, movies)
 
-    if args.celebs:  # True or False flag
-        if args.date is not None:
-            celeb_date = datetime.strptime(args.date[0], '%d/%m/%Y')
+    if args.celebs:
+        if args.date:
+            celeb_date = args.date[0]
         else:
             celeb_date = datetime.today()
         birthday_celebs_scraper = BirthdayScraper(str(celeb_date.month), str(celeb_date.day))
