@@ -9,7 +9,10 @@ csv_files = {'top_250': 'top_250.csv',
 tables = {"movies": "CREATE TABLE movies "
                     "(id INT AUTO_INCREMENT PRIMARY KEY, "
                     "imdb_id VARCHAR(255) UNIQUE, "
-                    "name VARCHAR(255), year INT(4))",
+                    "name VARCHAR(255), year INT(4),"
+                    "imdb_rating FLOAT,"
+                    "rt_rating FLOAT,"
+                    "mc_rating FLOAT)",
 
           "celebs": "CREATE TABLE celebs "
                     "(id INT AUTO_INCREMENT PRIMARY KEY, "
@@ -29,4 +32,10 @@ tables = {"movies": "CREATE TABLE movies "
                               "FOREIGN KEY(movie_id) REFERENCES movies(id),"
                               "FOREIGN KEY(role_id) REFERENCES roles(id))"}
 
+omdb = {"prefix": "http://www.omdbapi.com/?", "key": "6e17b7f7", }
+
 DATE_FORMAT = "%d/%m"
+
+ratings_sources_names = {'Internet Movie Database': "imdb",
+                         'Rotten Tomatoes': "rt",
+                         'Metacritic': "mc"}

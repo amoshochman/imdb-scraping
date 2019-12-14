@@ -1,3 +1,5 @@
+from config import ratings_sources_names
+
 class Entity:
     """
     A class representing an entity from IMDB: movie, celeb, etc.
@@ -32,7 +34,18 @@ class Movie(Entity):
         self.name = name
         self.year = year
         self.imdb_id = imdb_id
+        for source in ratings_sources_names.values():
+            setattr(self, source+"_rating", None)
 
+
+    def set_ratings(self, ratings):
+        """
+        Sets the movie rating from different sources as members of the Movie Object.
+        :param ratings: ratings for the movie from different Web Sources.
+        """
+        for source in ratings_sources_names.values():
+            if source in ratings:
+                setattr(self, source+"_rating", ratings[source])
 
 class Celeb(Entity):
     """
