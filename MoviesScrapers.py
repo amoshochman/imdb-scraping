@@ -99,12 +99,12 @@ class NowInTheatersScraper(MoviesScraper):
         soup = MoviesScraper.get_soup(self)
         movies_list = []
         movies_tags = soup.find_all(TAG_DICT['tag'], attrs={'class': TAG_DICT['tag_attr']})
+        h = re.compile(r'^(.*) \((19\d\d|20\d\d)\)$')
         for movie in movies_tags:
             h4_tag = movie.find('h4')
             movie_id = h4_tag.next.attrs["href"][7:-1]
-
             title = re.findall(r'title="(.*)"', str(h4_tag))
-            title = re.match(r'^(.*) \((19\d\d|20\d\d)\)$', title[0])
+            title = h.match(title[0])
             movie_name = title.group(1)
             movie_year = int(title.group(2))
             movies_list.append(Movie(movie_name, movie_year, movie_id))
