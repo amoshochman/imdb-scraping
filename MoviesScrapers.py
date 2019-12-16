@@ -1,6 +1,9 @@
+import requests
+import json
+
 from Entities import Movie
 from Scraper import Scraper
-from config import urls, csv_files
+from config import urls, csv_files, omdb, ratings_sources_names
 
 import re
 
@@ -19,6 +22,63 @@ class MoviesScraper(Scraper):
         :param file_name: the file of the name where the output should be redirected to.
         """
         Scraper.__init__(self, url, file_name, "movies")
+
+    def write_to_db(self, header, entities):
+        """
+        Calls the Parent Class function. Before that, enrichs the movies by adding to them the ratings.
+        :param header: the header to use in the CSV file.
+        :param entities: a list of IMDB movies.
+        """
+        for movie in entities:
+            ratings_dict = MoviesScraper.get_ratings(movie.name, movie.year)
+            if ratings_dict:
+                movie.set_ratings(ratings_dict)
+        Scraper.write_to_db(self, header, entities)
+
+    @staticmethod
+    def get_ratings(movie_name, movie_year):
+        """
+        Gets the ratings for a given movie.
+        :param movie_name: the name of the movie.
+        :param movie_year: the year of the movie.
+        :return: a dictionary where the keys are the different Web Sources and the values are the
+        ratings of the movie in the respective source.
+        """
+        url = omdb["prefix"] + "apikey=" + omdb["key"] + "&t=" + movie_name.replace(' ', '+') + "&y=" + str(movie_year)
+        response = requests.get(url)
+        return MoviesScraper.get_ratings_from_api_response(response)
+
+    @staticmethod
+    def get_ratings_from_api_response(response):
+        """
+        Extracts the ratings of a movie from a Json response.
+        :param response: the Json response.
+        :return: a dictionary where the keys are the different Web Sources and the values are the
+        ratings of the movie in the respective source.
+        """
+        text = json.loads(response.text)
+        if text["Response"] == "False":
+            return None
+        ratings_list = text["Ratings"]
+        ratings_dict = {}
+        # A dictionary instead of a defaultdict because we want "None" for default, not a number.
+        # And we don't want to have string columns for actually numbers in the DB table.
+        for source_and_value in ratings_list:
+            source = source_and_value['Source']
+            source_key = ratings_sources_names[source]
+            value = source_and_value['Value']
+            ratings_dict[source_key] = MoviesScraper.get_numeric_value(value)
+        return ratings_dict
+
+    @staticmethod
+    def get_numeric_value(rating):
+        """
+        Returns the rating for the movie in a float format between 0 and 1.
+        :param rating: the rating for the movie in string format.
+        :return: the rating of the movie in float format.
+        """
+        rating = rating.replace('%', '/100')
+        return eval(rating)
 
 
 # todo: unify the common behavior across the different versions of get_movies functions (in the child classes)?
@@ -39,12 +99,12 @@ class NowInTheatersScraper(MoviesScraper):
         soup = MoviesScraper.get_soup(self)
         movies_list = []
         movies_tags = soup.find_all(TAG_DICT['tag'], attrs={'class': TAG_DICT['tag_attr']})
+        h = re.compile(r'^(.*) \((19\d\d|20\d\d)\)$')
         for movie in movies_tags:
             h4_tag = movie.find('h4')
             movie_id = h4_tag.next.attrs["href"][7:-1]
-
             title = re.findall(r'title="(.*)"', str(h4_tag))
-            title = re.match(r'^(.*) \((19\d\d|20\d\d)\)$', title[0])
+            title = h.match(title[0])
             movie_name = title.group(1)
             movie_year = int(title.group(2))
             movies_list.append(Movie(movie_name, movie_year, movie_id))

@@ -85,6 +85,7 @@ class DBCreator():
         for x in mycursor:
             if x[0].lower() == db.lower():
                 db_exists = True
+                break
 
         if not db_exists:
             mycursor.execute("CREATE DATABASE " + db)
